@@ -2,53 +2,59 @@ NAME
     Apache::AntiSpam - AntiSpam filter for web pages
 
 SYNOPSIS
+      # You can't use this class directry
+      # see Apache::AntiSpam::* 
+
+      # or ... if you want your own AntiSpam Filter,
+      package Your::AntiSpamFilter;
+      use base qw(Apache::AntiSpam);
+
+      sub antispamize {
+          my($class, $email, $orig) = @_;
+          # do some filtering with $orig, and
+          return $orig;
+      }
+
       # in httpd.conf
       <Location /antispam>
       SetHandler perl-script
-      PerlHandler Apache::AntiSpam
+      PerlHandler Your::AntiSpamFilter
       </Location>
 
-      # off course, filter aware!
+      # filter aware
       PerlModule Apache::Filter
       SetHandler perl-script
       PerlSetVar Filter On
-      PerlHandler Apache::RegistryFilter Apache::AntiSpam Apache::Compress
+      PerlHandler Apache::RegistryFilter Your::AntiSpamFilter Apache::Compress
 
 DESCRIPTION
     Apache::AntiSpam is a filter module to prevent e-mail addresses exposed
-    as is on web pages. This module replaces e-mail addresses in web pages
-    with one of the formats listed below. (you can choose one)
-
-    *   miyagawa-nospam@cpan.org
-
-    *   miyagawa at cpan dot org
+    as is on web pages. The way to hide addresses from spammers are
+    implemented in each of Apache::Antispam::* subclasses.
 
     This module is Filter aware, meaning that it can work within
     Apache::Filter framework without modification.
 
-CONFIGURATION
-      # choose either of two
-      PerlSetVar AntiSpamFormat NoSpam
-      PerlSetVar AntiSpamFormat Spaces
+SUBCLASSING
+    Here is how to make your own filter.
 
-    "AntiSpamFormat" indicates the way Apache::AntiSpam replaces the e-mail
-    addresses.
+    Declare your class
+    Inherit from Apache::AntiSpam
+    define antispamize() method
+    That's all. Template of antispamize() method will be like this:
 
-    "NoSpam"
-        replaces miyagawa@cpan.org with miyagawa-nospam@cpan.org. (default)
+      sub antispamize {
+          my($class, $email, $orig) = @_;
+          # do some stuff..
+          return $orig;
+      }
 
-    "Spaces"
-        replaces miyagawa@cpan.org with miyagawa at cpan dot org.
+    where "$class" is your class, "$email" is an instance of Mail::Address,
+    and "$orig" is an original e-mail address string. See the Email::Find
+    manpage for details.
 
 TODO
-    *   -nospam suffix should be configured (easy).
-
-    *   More logging with Apache::Log.
-
     *   remove mailto: tags using HTML::Parser.
-
-    *   Make it easy to subclass so that the antispamming method can be
-        configured.
 
 ACKNOWLEDGEMENTS
     The idea of this module is stolen from Apache::AddrMunge by Mark J
@@ -64,5 +70,7 @@ AUTHOR
     under the same terms as Perl itself.
 
 SEE ALSO
-    the Email::Find manpage, the Apache::Filter manpage
+    the Email::Find manpage, the Apache::Filter manpage, the
+    Apache::AntiSpam::NoSpam manpage, the Apache::AntiSpam::Heuristic
+    manpage, the Apache::AntiSpam::HTMLEncode manpage.
 
