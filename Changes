@@ -1,5 +1,8 @@
 Revision history for Perl extension Apache::AntiSpam.
 
+0.03  Wed Jun  6 12:24:31 JST 2001
+	* use Email::Find 0.04;
+
 0.02  Thu May 10 18:58:21 JST 2001
 	- uses its own regex if $Email::Find::VERSION <= 0.03
 	- went on CPAN.

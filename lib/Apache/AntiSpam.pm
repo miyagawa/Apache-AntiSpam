@@ -2,15 +2,11 @@ package Apache::AntiSpam;
 
 use strict;
 use vars qw($VERSION);
-$VERSION = '0.02';
+$VERSION = '0.03';
 
 use Apache::Constants qw(:common);
 use Apache::File;
-use Email::Find; # 0.04;
-
-# make compiler aware of constant
-use constant EMAIL_FIND_VERSION => $Email::Find::VERSION;
-use vars qw($ADDR_SPEC);
+use Email::Find 0.04;
 
 sub handler {
     my $r = shift;
@@ -56,9 +52,6 @@ sub handler {
 
     $r->send_http_header;
 
-    # XXX encapsulation broken!
-    local $Email::Find::Addr_spec_re = $ADDR_SPEC
-	unless EMAIL_FIND_VERSION >= 0.04;
     local $/;		# slurp
     my $input = <$fh>;
     find_emails($input, \&$replacer);
@@ -66,23 +59,6 @@ sub handler {
 
     return OK;
 }    
-
-BEGIN {
-    $ADDR_SPEC =<<'REGEX';
-(?:[^(\040)<>@,;:".\\\[\]\000-\037\x80-\xff]+(?![^(\040)<>@,;:".\\
-\[\]\000-\037\x80-\xff])|"[^\\\x80-\xff\n\015"]*(?:\\[^\x80-\xff][
-^\\\x80-\xff\n\015"]*)*")(?:\.(?:[^(\040)<>@,;:".\\\[\]\000-\037\x
-80-\xff]+(?![^(\040)<>@,;:".\\\[\]\000-\037\x80-\xff])|"[^\\\x80-\
-xff\n\015"]*(?:\\[^\x80-\xff][^\\\x80-\xff\n\015"]*)*"))*@(?:[^(\0
-40)<>@,;:".\\\[\]\000-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\[\]\000
--\037\x80-\xff])|\[(?:[^\\\x80-\xff\n\015\[\]]|\\[^\x80-\xff])*\])
-(?:\.(?:[^(\040)<>@,;:".\\\[\]\000-\037\x80-\xff]+(?![^(\040)<>@,;
-:".\\\[\]\000-\037\x80-\xff])|\[(?:[^\\\x80-\xff\n\015\[\]]|\\[^\x
-80-\xff])*\]))*
-REGEX
-    ;
-    $ADDR_SPEC =~ s/\n//g;
-}
 
 1;
 __END__
@@ -169,22 +145,13 @@ Make it easy to subclass so that the antispamming method can be configured.
 
 =back
 
-=head1 CAVEATS
-
-Email::Find 0.0[23] may take up to half-an-hour or so to extract
-emails in complex documents, which can't be used for this kind of
-usage. (You can't wait for an hour in front of the browser!)
-
-Thus, Apache::Antispam localizes regex used by find_email() to more
-speedy version if Email::Find's VERSION is lower than 0.03.
-
-Email::Find 0.04, which Michael G. Schwern is now working on, will
-solve this problem of parsing speed.
-
 =head1 ACKNOWLEDGEMENTS
 
 The idea of this module is stolen from Apache::AddrMunge by Mark J
 Dominus.  See http://perl.plover.com/AddrMunge/ for details.
+
+Many thanks to Michael G. Schwern for kindly improving the matching
+speed of Email::Find.
 
 =head1 AUTHOR
 
