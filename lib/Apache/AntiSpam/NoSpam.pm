@@ -4,6 +4,7 @@ use strict;
 use vars qw($VERSION);
 $VERSION = '0.01';
 
+use Apache::AntiSpam;
 use base qw(Apache::AntiSpam);
 
 sub antispamize {
