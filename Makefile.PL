@@ -4,7 +4,7 @@ use ExtUtils::MakeMaker;
 WriteMakefile(
     'NAME'	=> 'Apache::AntiSpam',
     'PREREQ_PM'	=> {
-	Email::Find	=> 0.02,
+	Email::Find	=> 0.04,
 	mod_perl	=> 1.21,
     },
     'VERSION_FROM' => 'lib/Apache/AntiSpam.pm', # finds $VERSION
