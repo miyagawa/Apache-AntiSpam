@@ -1,0 +1,6 @@
+Changes
+MANIFEST
+Makefile.PL
+README
+lib/Apache/AntiSpam.pm
+t/00_load.t

@@ -1,0 +1,75 @@
+NAME
+    Apache::AntiSpam - AntiSpam filter for web pages
+
+SYNOPSIS
+      # in httpd.conf
+      <Location /antispam>
+      SetHandler perl-script
+      PerlHandler Apache::AntiSpam
+      </Location>
+
+      # off course, filter aware!
+      PerlModule Apache::Filter
+      SetHandler perl-script
+      PerlSetVar Filter On
+      PerlHandler Apache::RegistryFilter Apache::AntiSpam Apache::Compress
+
+DESCRIPTION
+    Apache::AntiSpam is a filter module to prevent e-mail addresses exposed
+    as is on web pages. This module replaces e-mail addresses in web pages
+    with one of the formats listed below. (you can choose one)
+
+    *   miyagawa-nospam@cpan.org
+
+    *   miyagawa at cpan dot org
+
+    This module is Filter aware, meaning that it can work within
+    Apache::Filter framework without modification.
+
+CONFIGURATION
+      # choose either of two
+      PerlSetVar AntiSpamFormat NoSpam
+      PerlSetVar AntiSpamFormat Spaces
+
+    "AntiSpamFormat" indicates the way Apache::AntiSpam replaces the e-mail
+    addresses.
+
+    "NoSpam"
+        replaces miyagawa@cpan.org with miyagawa-nospam@cpan.org. (default)
+
+    "Spaces"
+        replaces miyagawa@cpan.org with miyagawa at cpan dot org.
+
+TODO
+    *   -nospam suffix should be configured (easy).
+
+    *   More logging with Apache::Log.
+
+    *   remove mailto: tags using HTML::Parser.
+
+    *   Make it easy to subclass so can be configured address munging.
+
+CAVEATS
+    Email::Find 0.0[23] may take up to half-an-hour or so to extract emails
+    in complex documents, which can't be used for this kind of usage. (You
+    can't wait for an hour in front of the browser!)
+
+    Thus, Apache::Antispam localizes regex used by find_email() to more
+    speedy version if Email::Find's VERSION is lower than 0.03.
+
+    Email::Find 0.04, which Michael G Schwern is now working on, will solve
+    this problem of parsing speed.
+
+ACKNOWLEDGEMENTS
+    The idea of this module is stolen from Apache::AddrMunge by Mark J
+    Dominus. See http://perl.plover.com/AddrMunge/ for details.
+
+AUTHOR
+    Tatsuhiko Miyagawa <miyagawa@bulknews.net>
+
+    This library is free software; you can redistribute it and/or modify it
+    under the same terms as Perl itself.
+
+SEE ALSO
+    the Email::Find manpage, the Apache::Filter manpage
+
