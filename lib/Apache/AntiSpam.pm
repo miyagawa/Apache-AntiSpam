@@ -2,14 +2,15 @@ package Apache::AntiSpam;
 
 use strict;
 use vars qw($VERSION);
-$VERSION = '0.03';
+$VERSION = '0.04';
 
 use Apache::Constants qw(:common);
 use Apache::File;
+use Carp ();
 use Email::Find 0.04;
 
-sub handler {
-    my $r = shift;
+sub handler ($$) {
+    my($class, $r) = @_;
 
     my $filtered = uc($r->dir_config('Filter')) eq 'ON';
 
@@ -54,11 +55,18 @@ sub handler {
 
     local $/;		# slurp
     my $input = <$fh>;
-    find_emails($input, \&$replacer);
+    find_emails($input, sub { $class->antispamize(@_) });
     $r->print($input);
 
     return OK;
 }    
+
+sub antispamize {
+    my($class, $email, $orig) = @_;
+    Carp::carp "Apache::AntiSpam should be subclassed. I'll do nothing";
+    return $orig;
+}
+    
 
 1;
 __END__
@@ -69,59 +77,65 @@ Apache::AntiSpam - AntiSpam filter for web pages
 
 =head1 SYNOPSIS
 
+  # You can't use this class directry
+  # see Apache::AntiSpam::* 
+
+  # or ... if you want your own AntiSpam Filter,
+  package Your::AntiSpamFilter;
+  use base qw(Apache::AntiSpam);
+
+  sub antispamize {
+      my($class, $email, $orig) = @_;
+      # do some filtering with $orig, and
+      return $orig;
+  }
+
   # in httpd.conf
   <Location /antispam>
   SetHandler perl-script
-  PerlHandler Apache::AntiSpam
+  PerlHandler Your::AntiSpamFilter
   </Location>
 
-  # off course, filter aware!
+  # filter aware
   PerlModule Apache::Filter
   SetHandler perl-script
   PerlSetVar Filter On
-  PerlHandler Apache::RegistryFilter Apache::AntiSpam Apache::Compress
+  PerlHandler Apache::RegistryFilter Your::AntiSpamFilter Apache::Compress
 
 =head1 DESCRIPTION
 
 Apache::AntiSpam is a filter module to prevent e-mail addresses
-exposed as is on web pages. This module replaces e-mail addresses in
-web pages with one of the formats listed below. (you can choose one)
-
-=over 4
-
-=item *
-
-miyagawa-nospam@cpan.org
-
-=item *
-
-miyagawa at cpan dot org
-
-=back
+exposed as is on web pages. The way to hide addresses from spammers
+are implemented in each of Apache::Antispam::* subclasses.
 
 This module is Filter aware, meaning that it can work within
 Apache::Filter framework without modification.
 
-=head1 CONFIGURATION
+=head1 SUBCLASSING
 
-  # choose either of two
-  PerlSetVar AntiSpamFormat NoSpam
-  PerlSetVar AntiSpamFormat Spaces
-
-C<AntiSpamFormat> indicates the way Apache::AntiSpam replaces the
-e-mail addresses.
+Here is how to make your own filter.
 
 =over 4
 
-=item C<NoSpam>
+=item Declare your class
 
-replaces B<miyagawa@cpan.org> with B<miyagawa-nospam@cpan.org>. (default)
+=item Inherit from Apache::AntiSpam
 
-=item C<Spaces>
-
-replaces B<miyagawa@cpan.org> with B<miyagawa at cpan dot org>.
+=item define antispamize() method
 
 =back
+
+That's all. Template of antispamize() method will be like this:
+
+  sub antispamize {
+      my($class, $email, $orig) = @_;
+      # do some stuff..
+      return $orig;
+  }
+
+where C<$class> is your class, C<$email> is an instance of
+Mail::Address, and C<$orig> is an original e-mail address string. See
+L<Email::Find> for details.
 
 =head1 TODO
 
@@ -129,26 +143,14 @@ replaces B<miyagawa@cpan.org> with B<miyagawa at cpan dot org>.
 
 =item *
 
-B<-nospam> suffix should be configured (easy).
-
-=item *
-
-More logging with Apache::Log.
-
-=item *
-
 remove mailto: tags using HTML::Parser.
-
-=item *
-
-Make it easy to subclass so that the antispamming method can be configured.
 
 =back
 
 =head1 ACKNOWLEDGEMENTS
 
 The idea of this module is stolen from Apache::AddrMunge by Mark J
-Dominus.  See http://perl.plover.com/AddrMunge/ for details.
+Dominus. See http://perl.plover.com/AddrMunge/ for details.
 
 Many thanks to Michael G. Schwern for kindly improving the matching
 speed of Email::Find.
@@ -162,6 +164,7 @@ it under the same terms as Perl itself.
 
 =head1 SEE ALSO
 
-L<Email::Find>, L<Apache::Filter>
+L<Email::Find>, L<Apache::Filter>, L<Apache::AntiSpam::NoSpam>,
+L<Apache::AntiSpam::Heuristic>, L<Apache::AntiSpam::HTMLEncode>.
 
 =cut

@@ -1,9 +1,11 @@
 use strict;
 use Test;
-BEGIN { plan tests => 3 }
+BEGIN { plan tests => 2 }
 
 use Apache::AntiSpam;
-ok(1);
+use Apache::AntiSpam::Heuristic;
+use Apache::AntiSpam::HTMLEncode;
+use Apache::AntiSpam::NoSpam;
 
 use mod_perl;
 ok($mod_perl::VERSION >= 1.21);
