@@ -16,27 +16,21 @@ use Apache::FakeRequest;
 
 sub filters {
     my($file, $class) = @_;
-    tie *STDOUT, 'Tie::STDOUT', \my $output;
     my $r = Apache::FakeRequest->new(
 	content_type => 'text/plain',
 	is_main => 1,
 	filename => $file,
     );
+
+    my $out;
+    local $^W;
+    local *Apache::FakeRequest::print = sub {
+	shift;
+	$out .= join '', @_;
+    };
+
     $class->handler($r);
-    return $output;
+    return $out;
 }
-
-package Tie::STDOUT;
-
-sub TIEHANDLE {
-    my($class, $ref) = @_;
-    bless $ref, $class;
-}
-
-sub PRINT {
-    my $self = shift;
-    $$self .= join '', @_;
-}
-
 
 1;

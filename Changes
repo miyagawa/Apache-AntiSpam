@@ -1,5 +1,8 @@
 Revision history for Perl extension Apache::AntiSpam.
 
+0.05  Fri May  3 22:27:43 JST 2002
+	- no tie()ing STDOUT to shut up bleadperl
+
 0.04  Thu Jun 21 04:59:13 JST 2001
 	+++ Major API Change +++
 	* Apache::AntiSpam now becomes base class.

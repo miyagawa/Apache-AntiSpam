@@ -2,7 +2,7 @@ package Apache::AntiSpam;
 
 use strict;
 use vars qw($VERSION);
-$VERSION = '0.05';
+$VERSION = 0.05;
 
 use Apache::Constants qw(:common);
 use Apache::File;
@@ -20,7 +20,7 @@ sub handler ($$) {
 
     # AntiSpam filtering is done on text/* files
     return DECLINED unless ($r->content_type =~ m,^text/, && $r->is_main);
-    
+
     my($fh, $status);
     if ($filtered) {
 	($fh, $status) = $r->filter_input;
@@ -30,7 +30,7 @@ sub handler ($$) {
     }
 
     return DECLINED unless $fh;
-    
+
     # finds and replaces e-mail addresses
     # if-statement should be outside the sub for efficiency
     my $replacer;
@@ -59,14 +59,13 @@ sub handler ($$) {
     $r->print($input);
 
     return OK;
-}    
+}
 
 sub antispamize {
     my($class, $email, $orig) = @_;
     Carp::carp "Apache::AntiSpam should be subclassed. I'll do nothing";
     return $orig;
 }
-    
 
 1;
 __END__
@@ -117,11 +116,17 @@ Here is how to make your own filter.
 
 =over 4
 
-=item Declare your class
+=item *
 
-=item Inherit from Apache::AntiSpam
+Declare your class
 
-=item define antispamize() method
+=item *
+
+Inherit from Apache::AntiSpam
+
+=item *
+
+define antispamize() method
 
 =back
 
