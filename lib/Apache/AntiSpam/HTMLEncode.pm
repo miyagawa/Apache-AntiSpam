@@ -36,7 +36,7 @@ Apache::AntiSpam::HTMLEncode - Encodes E-mail addresses with HTML
 
 =head1 DESCRIPTION
 
-Apache::AntiSpam::Heurisitc is a subclass of Apache::AntiSpam, filter
+Apache::AntiSpam::HTMLEncode is a subclass of Apache::AntiSpam, filter
 module to prevent e-mail addresses exposed as is on web pages. This
 module encodes e-mail addresses with HTML.
 

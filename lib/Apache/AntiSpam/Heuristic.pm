@@ -38,7 +38,7 @@ Apache::AntiSpam::Heuristic - Filters E-mail address to heuristic one
 
 =head1 DESCRIPTION
 
-Apache::AntiSpam::Heurisitc is a subclass of Apache::AntiSpam, filter
+Apache::AntiSpam::Heuristic is a subclass of Apache::AntiSpam, filter
 module to prevent e-mail addresses exposed as is on web pages. This
 module filters e-mail addresses to heuristic ones.
 
